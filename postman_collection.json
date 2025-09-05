@@ -1,0 +1,302 @@
+{
+    "info": {
+        "_postman_id": "12345678-1234-1234-1234-123456789012",
+        "name": "GRC_PV - Tests Notifications WebSocket",
+        "description": "Collection pour tester les notifications WebSocket et le workflow des réunions",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "BASE_URL",
+            "value": "http://localhost:8080",
+            "type": "string"
+        },
+        {
+            "key": "FTE_TOKEN",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "DIRECTION_TOKEN",
+            "value": "",
+            "type": "string"
+        },
+        {
+            "key": "COMMISSION_TOKEN",
+            "value": "",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "1. Authentification",
+            "item": [
+                {
+                    "name": "Créer FTE",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"firstname\": \"John\",\n    \"lastname\": \"Doe\",\n    \"username\": \"fte_user\",\n    \"email\": \"fte@example.com\",\n    \"password\": \"password123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/auth/Fte/register",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "Fte",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Créer Direction Technique",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"firstname\": \"Marie\",\n    \"lastname\": \"Martin\",\n    \"username\": \"direction_user\",\n    \"email\": \"direction@example.com\",\n    \"password\": \"password123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/auth/Direction_technique/register",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "Direction_technique",
+                                "register"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Login FTE",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('FTE_TOKEN', response.token);",
+                                    "    console.log('FTE Token saved:', response.token);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"fte_user\",\n    \"password\": \"password123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/auth/login",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "login"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Login Direction Technique",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    const response = pm.response.json();",
+                                    "    pm.environment.set('DIRECTION_TOKEN', response.token);",
+                                    "    console.log('Direction Token saved:', response.token);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"username\": \"direction_user\",\n    \"password\": \"password123\"\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/auth/login",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "login"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "2. Workflow Réunions",
+            "item": [
+                {
+                    "name": "Créer Réunion (FTE) - Déclenche notification",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{FTE_TOKEN}}"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"sujet\": \"Réunion de test - Validation système\",\n    \"description\": \"Test des notifications WebSocket\",\n    \"dateProposee\": \"2024-12-20T14:00:00\",\n    \"participantIds\": []\n}"
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/reunions/creerReunion",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "reunions",
+                                "creerReunion"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Valider Réunion (Direction)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{DIRECTION_TOKEN}}"
+                            }
+                        ],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "valide",
+                                    "value": "true",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "motifRejet",
+                                    "value": "",
+                                    "type": "text"
+                                },
+                                {
+                                    "key": "participantIds",
+                                    "value": "[3]",
+                                    "type": "text"
+                                }
+                            ]
+                        },
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/reunions/1/validation",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "reunions",
+                                "1",
+                                "validation"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Confirmer Réunion (FTE)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{FTE_TOKEN}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/reunions/1/confirmation",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "reunions",
+                                "1",
+                                "confirmation"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Lister Mes Réunions",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer {{FTE_TOKEN}}"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{BASE_URL}}/api/reunions/mesReunions",
+                            "host": [
+                                "{{BASE_URL}}"
+                            ],
+                            "path": [
+                                "api",
+                                "reunions",
+                                "mesReunions"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}
